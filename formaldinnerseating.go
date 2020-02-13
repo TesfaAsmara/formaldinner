@@ -1,63 +1,84 @@
 package main
 
 import (
-    "bufio"
-    "encoding/csv"
-    "fmt"
-    "io"
-    "log"
 	"os"
-	"strings"
+	"encoding/csv"
+	"bufio"
+	"io"
+	"log"
+	"fmt"
 	"math/rand"
 	"time"
 )
 
+type Student struct {
+	FirstName string
+	LastName string
+}
+
+const numberOfStudents = 290
+const numberOfWaiters = 31
+const numberOfWaiterAlt = 8
+const numberOfKitchenCrew = 8
+const numberOfShuffles = 3
+
+func Shuffle(students []Student) {
+    r := rand.New(rand.NewSource(time.Now().Unix()))
+    // We start at the end of the slice, inserting our random
+    // values one at a time.
+    for n := len(students); n > 0; n-- {
+        randIndex := r.Intn(n)
+        // We swap the value at index n-1 and the random index
+        // to move our randomly chosen value to the end of the
+        // slice, and to move the value that was at n-1 into our
+        // unshuffled portion of the slice.
+        students[n-1], students[randIndex] = students[randIndex], students[n-1]
+    }
+}
+
 func main() {
-	// Step 1: create empty collections.
-	people := []string{}
-	position := []string{}
+		// Get list of students into this slice
+		unshuffledStudents := make([]Student, 0, numberOfStudents)
 
+		// Open the respective csv file
+		csvFile, _ := os.Open("list.csv")
 	
-	// 2. Open the respective csv file
-	csvFile, _ := os.Open("list.csv")
-	// 3. Initialize the reader
-	reader := csv.NewReader(bufio.NewReader(csvFile))
-	// 4. For loop that reads each line in the csv file and other commands explained in further detail below. 
-    for {
-        line, error := reader.Read()
-        if error == io.EOF {
-            break
-        } else if error != nil {
-			log.Fatal(error)
-		}
-	// 5. Create another empty collection for the names. Append csv data to empty collection. 
-		name := []string{}
-	// Line 1 = first names, Line 0 = respective last names.
-		name = append(name, line[1],line[0])
-	// 6. Take slice "name", join its' elements (first and last names) with a space, and then append it into empty collection "people"
-		people = append(people, strings.Join(name[:], " "))
-		position = append(position, line[2])
-
-	}
-
-	// 7. Shuffle, randomly, the elements in slice "people".
-		rand.Seed(time.Now().UnixNano())
-		rand.Shuffle(len(people), func(i, j int) { people[i], people[j] = people[j], people[i] })
-
-	// 8. Shuffle, randomly, the elements in slice "position".
-	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(position), func(i, j int) { position[i], position[j] = position[j], position[i] })
-
-	// 9. A for loop that prints a name with a position.
-		for i := range people {
-			fmt.Println( people[i], position[i])
-		}
-
-	} 
+		// Initialize the reader
+		reader := csv.NewReader(bufio.NewReader(csvFile))
 	
+		// For loop that reads each line in the csv file and other commands explained in further detail below. 
+		for {
+			line, error := reader.Read()
+			if error == io.EOF {
+				break
+			} else if error != nil {
+				log.Fatal(error)
+			}
+			unshuffledStudents = append(unshuffledStudents, Student{
+				FirstName: line[1],
+				LastName:  line[0],
+			})
+		}
+		
+		for i := 1; i <= numberOfShuffles; i++ {
 
+		Shuffle(unshuffledStudents)
 
+		fmt.Println("------------------------------------------This is seating", i)
 
-
-
-
+			for index, student := range unshuffledStudents {
+				if index < numberOfWaiters {
+					 fmt.Printf("%s %s Waiter %d\n", student.FirstName, student.LastName, index + 1)
+				} 
+				if index < numberOfWaiters + numberOfWaiterAlt && index > numberOfWaiters {
+					 fmt.Printf("%s %s Waiter Alt\n", student.FirstName, student.LastName)
+				}
+				if index < numberOfWaiters + numberOfWaiterAlt + numberOfKitchenCrew && index > numberOfWaiters + numberOfWaiterAlt {
+					 fmt.Printf("%s %s Kitchen Crew\n", student.FirstName, student.LastName)
+				}
+				if index > numberOfWaiters + numberOfWaiterAlt + numberOfKitchenCrew {
+					 fmt.Printf("%s %s %d\n", student.FirstName, student.LastName, (index-17) % 31 +1)
+				}
+		}
+}
+}
