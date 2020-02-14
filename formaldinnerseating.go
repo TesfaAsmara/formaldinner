@@ -17,10 +17,12 @@ type Student struct {
 }
 
 const numberOfStudents = 290
+const numberOfTables = 31
 const numberOfWaiters = 31
 const numberOfWaiterAlt = 8
 const numberOfKitchenCrew = 8
 const numberOfShuffles = 3
+
 
 func Shuffle(students []Student) {
     r := rand.New(rand.NewSource(time.Now().Unix()))
@@ -46,7 +48,7 @@ func main() {
 		// Initialize the reader
 		reader := csv.NewReader(bufio.NewReader(csvFile))
 	
-		// For loop that reads each line in the csv file and other commands explained in further detail below. 
+		// For loop that reads lines 0 and 1, first and last names, from the csv file. 
 		for {
 			line, error := reader.Read()
 			if error == io.EOF {
@@ -59,7 +61,7 @@ func main() {
 				LastName:  line[0],
 			})
 		}
-		
+
 		for i := 1; i <= numberOfShuffles; i++ {
 
 		Shuffle(unshuffledStudents)
@@ -77,7 +79,7 @@ func main() {
 					 fmt.Printf("%s %s Kitchen Crew\n", student.FirstName, student.LastName)
 				}
 				if index > numberOfWaiters + numberOfWaiterAlt + numberOfKitchenCrew {
-					 fmt.Printf("%s %s %d\n", student.FirstName, student.LastName, (index-17) % 31 +1)
+					 fmt.Printf("%s %s %d\n", student.FirstName, student.LastName, (index - (numberOfWaiters + numberOfWaiterAlt + numberOfKitchenCrew)) % numberOfTables + 1)
 				}
 		}
 }
