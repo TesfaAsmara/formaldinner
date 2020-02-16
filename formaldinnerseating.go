@@ -48,7 +48,8 @@ func main() {
 		// Initialize the reader
 		reader := csv.NewReader(bufio.NewReader(csvFile))
 	
-		// For loop that reads lines 0 and 1, first and last names, from the csv file. 
+		// For loop that reads lines 0 and 1, first and last names, from the csv file 
+		//into and through the objects FirstName and LastName in struct Student
 		for {
 			line, error := reader.Read()
 			if error == io.EOF {
